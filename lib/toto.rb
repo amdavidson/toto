@@ -9,7 +9,7 @@ require 'builder'
 
 $:.unshift File.dirname(__FILE__)
 
-require 'ext'
+require 'ext/ext'
 
 module Toto
   Paths = {
@@ -17,6 +17,14 @@ module Toto
     :pages => "templates/pages",
     :articles => "articles"
   }
+
+  def self.env
+    ENV['RACK_ENV'] || 'production'
+  end
+
+  def self.env= env
+    ENV['RACK_ENV'] = env
+  end
 
   module Template
     def to_html page, &blk
@@ -85,24 +93,24 @@ module Toto
         if route.first =~ /\d{4}/
           case route.size
             when 1..3
-              [Context.new(archives(route * '-'), @config, path).render(:archives, type), 200]
+              Context.new(archives(route * '-'), @config, path).render(:archives, type)
             when 4
-              [Context.new(article(route), @config, path).render(:article, type), 200]
+              Context.new(article(route), @config, path).render(:article, type)
             else http 400
           end
         elsif respond_to?(route = route.first.to_sym)
-          [Context.new(send(route, type), @config, path).render(route, type), 200]
+          Context.new(send(route, type), @config, path).render(route, type)
         else
-          [Context.new({}, @config, path).render(route.to_sym, type), 200]
+          Context.new({}, @config, path).render(route.to_sym, type)
         end
       else
         http 400
       end
 
     rescue Errno::ENOENT => e
-      body, status = http 404
-    ensure
-      return :body => body, :type => type, :status => status
+      return :body => http(404).first, :type => :html, :status => 404
+    else
+      return :body => body || "", :type => type, :status => status || 200
     end
 
   protected
@@ -195,17 +203,15 @@ module Toto
     end
 
     def slug
-      self[:slug] ||
-      self[:title].downcase.gsub(/&/, 'and').gsub(/\s+/, '-').gsub(/[^a-z0-9-]/, '')
+      self[:slug] || self[:title].slugize
     end
 
     def summary length = nil
-      length ||= (config = @config[:summary]).is_a?(Hash) ? config[:max] : config
-
+      config = @config[:summary]
       sum = if self[:body] =~ config[:delim]
         self[:body].split(config[:delim]).first
       else
-        self[:body].match(/(.{1,#{length}}.*?)(\n|\Z)/m).to_s
+        self[:body].match(/(.{1,#{length || config[:length]}}.*?)(\n|\Z)/m).to_s
       end
       markdown(sum.length == self[:body].length ? sum : sum.strip.sub(/\.\Z/, '&hellip;'))
     end
@@ -253,7 +259,8 @@ module Toto
       :markdown => :smart,                                # use markdown
       :disqus => false,                                   # disqus name
       :summary => {:max => 150, :delim => /~\n/},         # length of summary and delimiter
-      :ext => 'txt'                                       # extension for articles
+      :ext => 'txt',                                      # extension for articles
+      :cache => 28800                                     # cache duration (seconds)
     }
     def initialize obj
       self.update Defaults
@@ -288,11 +295,16 @@ module Toto
       response = Toto::Site.new(@config).go(route, *(mime ? mime : []))
 
       @response.body = [response[:body]]
-      @response['Content-Length'] = response[:body].length.to_s
+      @response['Content-Length'] = response[:body].length.to_s unless response[:body].empty?
       @response['Content-Type']   = Rack::Mime.mime_type(".#{response[:type]}")
 
-      # Cache for one day
-      @response['Cache-Control'] = "public, max-age=86400"
+      # Set http cache headers
+      @response['Cache-Control'] = if Toto.env == 'production'
+        "public, max-age=#{@config[:cache]}"
+      else
+        "no-cache, must-revalidate"
+      end
+
       @response['Etag'] = Digest::SHA1.hexdigest(response[:body])
 
       @response.status = response[:status]
