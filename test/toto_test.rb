@@ -118,7 +118,7 @@ context Toto do
 
     context "with everything specified" do
       setup do
-        @config[:permalink] = "%Y/"
+        @config[:permalink] = ":year/:title"
 
         Toto::Article.new({
           :title  => "The Wizard of Oz",
