@@ -87,7 +87,7 @@ module Toto
           Article.new article, @config
         end : []
 
-      return :archives => Archives.new(entries, @config)
+      return {:archives => Archives.new(entries, @config)}
     end
 
     def article route
@@ -127,9 +127,9 @@ module Toto
       end
 
     rescue Errno::ENOENT => e
-      return :body => http(404).first, :type => :html, :status => 404
+      return {:body => http(404).first, :type => :html, :status => 404}
     else
-      return :body => body || "", :type => type, :status => status || 200
+      return {:body => body || "", :type => type, :status => status || 200}
     end
 
   protected
