@@ -67,17 +67,10 @@ module Toto
     end
 
     def index type = :html
-      case type
-        when :html
-          {:articles => self.articles.reverse.map do |article|
-              Article.new article, @config
-          end }.merge archives
-        when :xml, :json
-          return :articles => self.articles.map do |article|
-            Article.new article, @config
-          end
-        else return {}
-      end
+      articles = type == :html ? self.articles.reverse : self.articles
+      {:articles => articles.map do |article|
+        Article.new article, @config
+      end}.merge archives
     end
 
     def archives filter = ""
@@ -166,7 +159,8 @@ module Toto
       end
 
       def render page, type
-        type == :html ? to_html(:layout, @config, &Proc.new { to_html page, @config }) : send(:"to_#{type}", page)
+        content = to_html page, @config
+        type == :html ? to_html(:layout, @config, &Proc.new { content }) : send(:"to_#{type}", page)
       end
 
       def to_xml page
@@ -177,7 +171,7 @@ module Toto
       alias :to_atom to_xml
 
       def method_missing m, *args, &blk
-        @context.respond_to?(m) ? @context.send(m) : super
+        @context.respond_to?(m) ? @context.send(m, *args, &blk) : super
       end
     end
   end
