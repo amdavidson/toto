@@ -279,10 +279,11 @@ module Toto
       path = "/"
       @config[:permalink].split("/").each do |sub|
         case sub
-        when ":year"  then path += "%Y/"
-        when ":month" then path += "%m/"
-        when ":day"   then path += "%d/"
+        when ":year"  then path += (self[:year]  || "%Y").to_s << "/"
+        when ":month" then path += (self[:month] || "%m").to_s << "/"
+        when ":day"   then path += (self[:day]   || "%d").to_s << "/"
         when ":title" then path += "#{slug}/"
+#when /:(\w+)/ then p $1; path += "#{self[$1.to_sym]}/"
         else
           path += "#{self[sub.to_sym]}/"
         end
