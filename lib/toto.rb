@@ -100,7 +100,7 @@ module Toto
         when ":day"   then style += '\d{2}\/'
         when ":title" then style += '[a-zA-Z0-9\-_]+'
         else
-          raise TypeError, sub
+          style += '.+\/'
         end
       end
       Regexp.new style
@@ -284,7 +284,7 @@ module Toto
         when ":day"   then path += "%d/"
         when ":title" then path += "#{slug}/"
         else
-          raise TypeError, sub
+          path += "#{self[sub.to_sym]}/"
         end
       end
       self[:date].strftime(path)
