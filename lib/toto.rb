@@ -15,8 +15,8 @@ require 'ext/ext'
 module Toto
   Paths = {
     :templates => "templates",
-    :pages => "templates/pages",
-    :articles => "articles"
+    :pages     => "templates/pages",
+    :articles  => "articles"
   }
 
   def self.env
@@ -304,7 +304,7 @@ module Toto
       :root => "index",                                     # site index
       :url => "http://127.0.0.1",                           # root URL of the site
       :prefix => "",                                        # common path prefix for the blog
-      :permalink => ":year/:month/:day/:title",           # permalink prefix format
+      :permalink => ":year/:month/:day/:title",             # permalink prefix format
       :date => lambda {|now| now.strftime("%d/%m/%Y") },    # date function
       :markdown => :smart,                                  # use markdown
       :disqus => false,                                     # disqus name
