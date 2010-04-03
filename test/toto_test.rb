@@ -188,6 +188,41 @@ context Toto do
 
         should("create a valid summary") { topic.summary.size }.within 75..80
       end
+
+    end
+
+    context "with custom permalink data" do
+      context "with extraneous metadata" do
+        setup do
+          @config[:permalink] = "/:foo/:bar"
+
+          Toto::Article.new({
+            # Bare minimum
+            :title => "Toto & The Wizard of Oz.",
+            :body  => "Well,\nhello ~\n, *stranger*.",
+            # Actually testing this
+            :foo   => "foo",
+            :bar   => "bar",
+          }, @config)
+        end
+
+        should("use the correct data") { topic.path }.equals "/foo/bar"
+      end
+      context "with colliding metadata" do
+        setup do
+          @config[:permalink] = "/:year/:title"
+
+          Toto::Article.new({
+            # Bare minimum
+            :title => "Toto & The Wizard of Oz.",
+            :body  => "Well,\nhello ~\n, *stranger*.",
+            # Actually testing this
+            :year  => 1007,
+          }, @config)
+        end
+
+        should("use the metadata instead of the generated data") { topic.path }.equals "/1007/toto-and-the-wizard-of-oz/"
+      end
     end
 
     context "in a subdirectory" do
