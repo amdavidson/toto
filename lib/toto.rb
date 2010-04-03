@@ -30,7 +30,7 @@ module Toto
 
   module Template
     def to_html page, config, &blk
-      path = ([:layout, :repo].include?(page) ? Paths[:templates] : Paths[:pages])
+      path = ((:layout == page) ? Paths[:templates] : Paths[:pages])
       config[:to_html].call(path, page, binding)
     end
 
@@ -110,9 +110,6 @@ module Toto
           end
         elsif respond_to?(path)
           context[send(path, type), path.to_sym]
-        elsif (repo = @config[:github][:repos].grep(/#{path}/).first) &&
-              !@config[:github][:user].empty?
-          context[Repo.new(repo, @config), :repo]
         else
           context[{}, path.to_sym]
         end
@@ -174,24 +171,6 @@ module Toto
         @context.respond_to?(m) ? @context.send(m, *args, &blk) : super
       end
     end
-  end
-
-  class Repo < Hash
-    include Template
-
-    README = "http://github.com/%s/%s/raw/master/README.%s"
-
-    def initialize name, config
-      self[:name], @config = name, config
-    end
-
-    def readme
-      markdown open(README %
-        [@config[:github][:user], self[:name], @config[:github][:ext]]).read
-    rescue Timeout::Error, OpenURI::HTTPError => e
-      "This page isn't available."
-    end
-    alias :content readme
   end
 
   class Archives < Array
@@ -290,7 +269,6 @@ module Toto
       :summary => {:max => 150, :delim => /~\n/},           # length of summary and delimiter
       :ext => 'txt',                                        # extension for articles
       :cache => 28800,                                      # cache duration (seconds)
-      :github => {:user => "", :repos => [], :ext => 'md'}, # Github username and list of repos
       :to_html => lambda {|path, page, ctx|                 # returns an html, from a path & context
         ERB.new(File.read("#{path}/#{page}.rhtml")).result(ctx)
       },
