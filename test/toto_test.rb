@@ -208,6 +208,7 @@ context Toto do
 
         should("use the correct data") { topic.path }.equals "/foo/bar"
       end
+
       context "with colliding metadata" do
         setup do
           @config[:permalink] = "/:year/:title"
@@ -222,6 +223,21 @@ context Toto do
         end
 
         should("use the metadata instead of the generated data") { topic.path }.equals "/1007/toto-and-the-wizard-of-oz/"
+      end
+
+      context "with missing metadata" do
+        setup do
+          @config[:permalink] = "/:foo/:title"
+
+          Toto::Article.new({
+            # Bare minimum
+            :title => "Toto & The Wizard of Oz.",
+            :body  => "Well,\nhello ~\n, *stranger*.",
+          }, @config)
+        end
+
+        should("continue without error") { topic.path }.equals "/toto-and-the-wizard-of-oz/"
+        should("not contain foward slash twice or more") { not topic.path =~ %r{//} }
       end
     end
 
