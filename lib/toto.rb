@@ -287,7 +287,7 @@ module Toto
           path += "#{self[sub.to_sym]}/"
         end
       end
-      self[:date].strftime(path)
+      self[:date].strftime(path).squeeze("/")
     end
 
     def title()   self[:title] || "an article"        end
