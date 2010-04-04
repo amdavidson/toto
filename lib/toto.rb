@@ -284,7 +284,7 @@ module Toto
         when ":month" then path += (self[:month] || "%m").to_s << "/"
         when ":day"   then path += (self[:day]   || "%d").to_s << "/"
         when ":title" then path += "#{slug}/"
-        when /:(\w+)/ then p $1; path += "#{self[$1.to_sym]}/"
+        when /:(\w+)/ then path += "#{self[$1.to_sym]}/"
         end
       end
       self[:date].strftime(path).squeeze("/")
