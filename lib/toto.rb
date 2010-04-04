@@ -278,6 +278,7 @@ module Toto
     def path
       path = "/"
       @config[:permalink].split("/").each do |sub|
+        next if sub.empty?
         case sub
         when ":year"  then path += (self[:year]  || "%Y").to_s << "/"
         when ":month" then path += (self[:month] || "%m").to_s << "/"
