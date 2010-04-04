@@ -206,7 +206,7 @@ context Toto do
           }, @config)
         end
 
-        should("use the correct data") { topic.path }.equals "/foo/bar"
+        should("use the correct data") { topic.path }.equals "/foo/bar/"
       end
 
       context "with colliding metadata" do
