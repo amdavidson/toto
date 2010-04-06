@@ -164,6 +164,7 @@ defaults, to get you started:
     set :summary,     :max => 150, :delim => /~\n/              # length of article summary and delimiter
     set :ext,         'txt'                                     # file extension for articles
     set :cache,       28800                                     # cache site for 8 hours
+    set :github,      :user => "", :repos => [], :ext => 'md'   # get READMEs from this user's repositories
 
     set :to_html   do |path, page, ctx|                         # returns an html, from a path & context
       ERB.new(File.read("#{path}/#{page}.rhtml")).result(ctx)
