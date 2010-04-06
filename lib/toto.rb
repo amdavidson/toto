@@ -7,7 +7,6 @@ require 'open-uri'
 
 require 'rdiscount'
 require 'builder'
-require 'pp'
 
 $:.unshift File.dirname(__FILE__)
 
@@ -16,8 +15,8 @@ require 'ext/ext'
 module Toto
   Paths = {
     :templates => "templates",
-    :pages => "templates/pages",
-    :articles => "articles"
+    :pages     => "templates/pages",
+    :articles  => "articles"
   }
 
   def self.env
@@ -92,6 +91,21 @@ module Toto
       self[:root]
     end
 
+    def permalink_style
+      style = ''
+      @config[:permalink].split("/").each do |sub|
+        case sub
+        when ":year"  then style += '\d{4}\/'
+        when ":month" then style += '\d{2}\/'
+        when ":day"   then style += '\d{2}\/'
+        when ":title" then style += '[a-zA-Z0-9\-_]+'
+        else
+          style += '.+\/'
+        end
+      end
+      Regexp.new style
+    end
+
     def go route, type = :html
       route << self./ if route.empty?
       type, path = type =~ /html|xml|json/ ? type.to_sym : :html, route.join('/')
@@ -100,16 +114,12 @@ module Toto
       end
 
       body, status = if Context.new.respond_to?(:"to_#{type}")
-        if route.first =~ /\d{4}/
-          case route.size
-            when 1..3
-              context[archives(route * '-'), :archives]
-            when 4
-              context[article(route), :article]
-            else http 400
-          end
-        elsif respond_to?(path)
-          context[send(path, type), path.to_sym]
+        if path =~ permalink_style
+          Context.new(article(route), @config, path).render(:article, type)
+        elsif route.first =~ /\d{4}/
+          Context.new(archives(route * '-'), @config, path).render(:archives, type)
+        elsif respond_to?(route = route.first.to_sym)
+          Context.new(send(route, type), @config, path).render(route, type)
         elsif (repo = @config[:github][:repos].grep(/#{path}/).first) &&
               !@config[:github][:user].empty?
           context[Repo.new(repo, @config), :repo]
@@ -266,13 +276,24 @@ module Toto
     end
 
     def path
-      ('/' + @config[:prefix] + self[:date].strftime("/%Y/%m/%d/#{slug}/")).squeeze('/')
+      path = "/#{@config[:prefix]}/"
+      @config[:permalink].split("/").each do |sub|
+        next if sub.empty?
+        case sub
+        when ":year"  then path += (self[:year]  || "%Y").to_s << "/"
+        when ":month" then path += (self[:month] || "%m").to_s << "/"
+        when ":day"   then path += (self[:day]   || "%d").to_s << "/"
+        when ":title" then path += "#{slug}/"
+        when /:(\w+)/ then path += "#{self[$1.to_sym]}/"
+        end
+      end
+      self[:date].strftime(path).squeeze("/")
     end
 
-    def title()   self[:title] || "an article"               end
-    def date()    @config[:date].call(self[:date])           end
-    def author()  self[:author] || @config[:author]          end
-    def to_html() self.load; super(:article, @config)        end
+    def title()   self[:title] || "an article"        end
+    def date()    @config[:date].call(self[:date])    end
+    def author()  self[:author] || @config[:author]   end
+    def to_html() self.load; super(:article, @config) end
     alias :to_s to_html
   end
 
@@ -283,6 +304,7 @@ module Toto
       :root => "index",                                     # site index
       :url => "http://127.0.0.1",                           # root URL of the site
       :prefix => "",                                        # common path prefix for the blog
+      :permalink => ":year/:month/:day/:title",             # permalink prefix format
       :date => lambda {|now| now.strftime("%d/%m/%Y") },    # date function
       :markdown => :smart,                                  # use markdown
       :disqus => false,                                     # disqus name
