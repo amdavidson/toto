@@ -226,6 +226,19 @@ context Toto do
 
         should("be in the directory") { topic.path }.equals Date.today.strftime("/blog/%Y/%m/%d/toto-and-the-wizard-of-oz/")
       end
+
+      context "in a sub-subdirectory" do
+        setup do
+          conf = Toto::Config.new({})
+          conf.set(:prefix, "my/blog")
+          Toto::Article.new({
+            :title => "Toto & The Wizard of Oz.",
+            :body => "#Chapter I\nhello, *stranger*."
+          }, conf)
+        end
+
+        should("be in the directory") { topic.path }.equals Date.today.strftime("/my/blog/%Y/%m/%d/toto-and-the-wizard-of-oz/")
+      end
     end
   end
 
