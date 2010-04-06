@@ -136,6 +136,7 @@ you could add `set :author, 'John Galt'` inside the `Toto::Server.new` block. He
     set :title,       Dir.pwd.split('/').last                   # site title
     set :url,         'http://example.com'                      # site root URL
     set :prefix,      ''                                        # common path prefix for all pages
+    set :permalink,   '/:year/:month/:day/:title'               # structure of article's URLs
     set :root,        "index"                                   # page to load on /
     set :date,        lambda {|now| now.strftime("%d/%m/%Y") }  # date format for articles
     set :markdown,    :smart                                    # use markdown + smart-mode
@@ -151,6 +152,23 @@ you could add `set :author, 'John Galt'` inside the `Toto::Server.new` block. He
     set :error     do |code|                                    # The HTML for your error page
       "<font style='font-size:300%'>toto, we're not in Kansas anymore (#{code})</font>"
     end
+
+
+#### permalinks
+
+Toto includes supports for custom URLs for the articles. Prior to the inclusion of this feature, all article's URLs were
+forced to have the structure "/year/month/day/title". Now, you can modify that path, to include (or exclude) whatever data
+you want. The custom permalink's syntax follows that of [Jekyll's](http://wiki.github.com/mojombo/jekyll/permalinks), so
+anyone familiar with it should feel right at home with Toto's permalinks. Toto provides 4 preexisting variables:
+
+
+ * `:year` - The year the article was made, derived from the date
+ * `:month` - The month the article was made, derived from the date
+ * `:day` - The day the article was made, derived from the date
+ * `:title` - The title of the article, with URL un-safe characters removed. (The slug)
+
+Also, any extra YAML front matter can be used in the structure. If you define one of the pre-existing variables in the front
+matter (excluding title), the value in the front-matter will override the derived variable. `:title` will always be the slug.
 
 thanks
 ------
