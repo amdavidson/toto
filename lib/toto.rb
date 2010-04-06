@@ -165,7 +165,6 @@ module Toto
 
       def to_xml page
         xml = Builder::XmlMarkup.new(:indent => 2)
-        pp page
         instance_eval File.read("#{Paths[:templates]}/#{page}.builder")
       end
       alias :to_atom to_xml
@@ -267,7 +266,7 @@ module Toto
     end
 
     def path
-      @config[:prefix] + self[:date].strftime("/%Y/%m/%d/#{slug}/")
+      ('/' + @config[:prefix] + self[:date].strftime("/%Y/%m/%d/#{slug}/")).squeeze('/')
     end
 
     def title()   self[:title] || "an article"               end
