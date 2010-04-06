@@ -6,8 +6,9 @@ the tiniest blogging engine in Oz!
 introduction
 ------------
 
-toto is a git-powered, minimalist blog engine for the hackers of Oz. The engine weighs around ~300 sloc at its worse.
-There is no toto client, at least for now; everything goes through git.
+toto is a git-powered, minimalist blog engine for the hackers of Oz. The
+engine weighs around ~300 sloc at its worse.  There is no toto client,
+at least for now; everything goes through git.
 
 blog in 10 seconds
 ------------------
@@ -20,19 +21,22 @@ blog in 10 seconds
 philosophy
 ----------
 
-Everything that can be done better with another tool should be, but one should not have too much pie to stay fit.
-In other words, toto does away with web frameworks or DSLs such as sinatra, and is built right on top of **rack**.
-There is no database or ORM either, we use plain text files.
+Everything that can be done better with another tool should be, but one
+should not have too much pie to stay fit.  In other words, toto does away
+with web frameworks or DSLs such as sinatra, and is built right on top
+of **rack**.  There is no database or ORM either, we use plain text files.
 
-Toto was designed to be used with a reverse-proxy cache, such as [Varnish](http://varnish-cache.org).
-This makes it an ideal candidate for [heroku](http://heroku.com).
+Toto was designed to be used with a reverse-proxy cache, such as
+[Varnish](http://varnish-cache.org).  This makes it an ideal candidate
+for [heroku](http://heroku.com).
 
 Oh, and everything that can be done with git, _is_.
 
 how it works
 ------------
 
-- content is entirely managed through **git**; you get full fledged version control for free.
+- content is entirely managed through **git**; you get full fledged version
+  control for free.
 - articles are stored as _.txt_ files, with embeded metadata (in yaml format).
 - articles are processed through a markdown converter (rdiscount) by default.
 - templating is done through **ERB**.
@@ -40,24 +44,30 @@ how it works
 - toto was built to take advantage of _HTTP caching_.
 - toto was built with heroku in mind.
 - comments are handled by [disqus](http://disqus.com)
-- individual articles can be accessed through urls such as _/2009/11/21/blogging-with-toto_
-- the archives can be accessed by year, month or day, wih the same format as above.
-- arbitrary metadata can be included in articles files, and accessed from the templates.
-- summaries are generated intelligently by toto, following the `:max` setting you give it.
-- you can also define how long your summary is, by adding `~` at the end of it (`:delim`).
+- individual articles can be accessed through urls such as
+  _/2009/11/21/blogging-with-toto_
+- the archives can be accessed by year, month or day, wih the same format as
+  above.
+- arbitrary metadata can be included in articles files, and accessed from the
+  templates.
+- summaries are generated intelligently by toto, following the `:max` setting
+  you give it.
+- you can also define how long your summary is, by adding `~` at the end of it
+  (`:delim`).
 
 dorothy
 -------
 
-Dorothy is toto's default template, you can get it at <http://github.com/cloudhead/dorothy>. It
-comes with a very minimalistic but functional template, and a _config.ru_ file to get you started.
+Dorothy is toto's default template, you can get it at
+<http://github.com/cloudhead/dorothy>. It comes with a very minimalistic
+but functional template, and a _config.ru_ file to get you started.
 It also includes a _.gems_ file, for heroku.
 
 synopsis
 --------
 
-One would start by installing _toto_, with `sudo gem install toto`, and then forking or
-cloning the `dorothy` repo, to get a basic skeleton:
+One would start by installing _toto_, with `sudo gem install toto`,
+and then forking or cloning the `dorothy` repo, to get a basic skeleton:
 
     $ git clone git://github.com/cloudhead/dorothy.git weblog
     $ cd weblog/
@@ -78,7 +88,8 @@ One would then edit the template at will, it has the following structure:
        |
        +- about.rhtml
 
-One could then create a .txt article file in the `articles/` folder, and make sure it has the following format:
+One could then create a .txt article file in the `articles/` folder,
+and make sure it has the following format:
 
     title: The Wonderful Wizard of Oz
     author: Lyman Frank Baum
@@ -87,18 +98,22 @@ One could then create a .txt article file in the `articles/` folder, and make su
     Dorothy lived in the midst of the great Kansas prairies, with Uncle Henry,
     who was a farmer, and Aunt Em, who was the farmer's wife.
 
-If one is familiar with webby or aerial, this shouldn't look funny. Basically the top of the file is in YAML format,
-and the rest of it is the blog post. They are delimited by an empty line `/\n\n/`, as you can see above.
-None of the information is compulsory, but it's strongly encouraged you specify it.
-Note that one can also use `rake` to create an article stub, with `rake new`.
+If one is familiar with webby or aerial, this shouldn't look
+funny. Basically the top of the file is in YAML format, and the rest
+of it is the blog post. They are delimited by an empty line `/\n\n/`,
+as you can see above.  None of the information is compulsory, but it's
+strongly encouraged you specify it.  Note that one can also use `rake`
+to create an article stub, with `rake new`.
 
-Once he finishes writing his beautiful tale, one can push to the git repo, as usual:
+Once he finishes writing his beautiful tale, one can push to the git repo,
+as usual:
 
     $ git add articles/wizard-of-oz.txt
     $ git commit -m 'wrote the wizard of oz.'
     $ git push remote master
 
-Where `remote` is the name of your remote git repository. The article is now published.
+Where `remote` is the name of your remote git repository. The article
+is now published.
 
 ### deployment
 
@@ -106,8 +121,9 @@ Toto is built on top of **Rack**, and hence has a **rackup** file: _config.ru_.
 
 #### on your own server
 
-Once you have created the remote git repo, and pushed your changes to it, you can run toto with any Rack compliant web server,
-such as **thin**, **mongrel** or **unicorn**.
+Once you have created the remote git repo, and pushed your changes to it,
+you can run toto with any Rack compliant web server, such as **thin**,
+**mongrel** or **unicorn**.
 
 With thin, you would do something like:
 
@@ -119,9 +135,11 @@ With unicorn, you can just do:
 
 #### on heroku
 
-Toto was designed to work well with [heroku](http://heroku.com), it makes the most out of it's state-of-the-art caching,
-by setting the _Cache-Control_ and _Etag_ HTTP headers. Deploying on Heroku is really easy, just get the heroku gem,
-create a heroku app with `heroku create`, and push with `git push heroku master`.
+Toto was designed to work well with [heroku](http://heroku.com), it
+makes the most out of it's state-of-the-art caching, by setting the
+_Cache-Control_ and _Etag_ HTTP headers. Deploying on Heroku is really
+easy, just get the heroku gem, create a heroku app with `heroku create`,
+and push with `git push heroku master`.
 
     $ heroku create weblog
     $ git push heroku master
@@ -129,8 +147,10 @@ create a heroku app with `heroku create`, and push with `git push heroku master`
 
 ### configuration
 
-You can configure toto, by modifying the _config.ru_ file. For example, if you want to set the blog author to 'John Galt',
-you could add `set :author, 'John Galt'` inside the `Toto::Server.new` block. Here are the defaults, to get you started:
+You can configure toto, by modifying the _config.ru_ file. For example,
+if you want to set the blog author to 'John Galt', you could add `set
+:author, 'John Galt'` inside the `Toto::Server.new` block. Here are the
+defaults, to get you started:
 
     set :author,      ENV['USER']                               # blog author
     set :title,       Dir.pwd.split('/').last                   # site title
@@ -156,19 +176,26 @@ you could add `set :author, 'John Galt'` inside the `Toto::Server.new` block. He
 
 #### permalinks
 
-Toto includes supports for custom URLs for the articles. Prior to the inclusion of this feature, all article's URLs were
-forced to have the structure "/year/month/day/title". Now, you can modify that path, to include (or exclude) whatever data
-you want. The custom permalink's syntax follows that of [Jekyll's](http://wiki.github.com/mojombo/jekyll/permalinks), so
-anyone familiar with it should feel right at home with Toto's permalinks. Toto provides 4 preexisting variables:
+Toto includes supports for custom URLs for the articles. Prior
+to the inclusion of this feature, all article's URLs were
+forced to have the structure "/year/month/day/title". Now,
+you can modify that path, to include (or exclude) whatever
+data you want. The custom permalink's syntax follows that of
+[Jekyll's](http://wiki.github.com/mojombo/jekyll/permalinks), so anyone
+familiar with it should feel right at home with Toto's permalinks. Toto
+provides 4 preexisting variables:
 
 
  * `:year` - The year the article was made, derived from the date
  * `:month` - The month the article was made, derived from the date
  * `:day` - The day the article was made, derived from the date
- * `:title` - The title of the article, with URL un-safe characters removed. (The slug)
+ * `:title` - The title of the article, with URL un-safe characters removed.
+  (The slug)
 
-Also, any extra YAML front matter can be used in the structure. If you define one of the pre-existing variables in the front
-matter (excluding title), the value in the front-matter will override the derived variable. `:title` will always be the slug.
+Also, any extra YAML front matter can be used in the structure. If
+you define one of the pre-existing variables in the front matter
+(excluding title), the value in the front-matter will override the
+derived variable. `:title` will always be the slug.
 
 thanks
 ------
