@@ -80,9 +80,14 @@ context Toto do
     end
   end
 
-  context "GET to an unknown route" do
-    setup { @toto.get('/unknown') }
+  context "GET to an unknown route with a custom error" do
+    setup do
+      @config[:error] = lambda {|code| "error: #{code}" }
+      @toto.get('/unknown')
+    end
+
     should("returns a 404") { topic.status }.equals 404
+    should("return the custom error") { topic.body }.equals "error: 404"
   end
 
   context "Request is invalid" do
@@ -292,6 +297,47 @@ context Toto do
         end
 
         should("be in the directory") { topic.path }.equals Date.today.strftime("/my/blog/%Y/%m/%d/toto-and-the-wizard-of-oz/")
+      end
+    end
+
+    context "in a subdirectory" do
+      context "with implicit leading forward slash" do
+        setup do
+          conf = Toto::Config.new({})
+          conf.set(:prefix, "blog")
+          Toto::Article.new({
+            :title => "Toto & The Wizard of Oz.",
+            :body => "#Chapter I\nhello, *stranger*."
+          }, conf)
+        end
+
+        should("be in the directory") { topic.path }.equals Date.today.strftime("/blog/%Y/%m/%d/toto-and-the-wizard-of-oz/")
+      end
+
+      context "with explicit leading forward slash" do
+        setup do
+          conf = Toto::Config.new({})
+          conf.set(:prefix, "/blog")
+          Toto::Article.new({
+            :title => "Toto & The Wizard of Oz.",
+            :body => "#Chapter I\nhello, *stranger*."
+          }, conf)
+        end
+
+        should("be in the directory") { topic.path }.equals Date.today.strftime("/blog/%Y/%m/%d/toto-and-the-wizard-of-oz/")
+      end
+
+      context "with explicit trailing forward slash" do
+        setup do
+          conf = Toto::Config.new({})
+          conf.set(:prefix, "blog/")
+          Toto::Article.new({
+            :title => "Toto & The Wizard of Oz.",
+            :body => "#Chapter I\nhello, *stranger*."
+          }, conf)
+        end
+
+        should("be in the directory") { topic.path }.equals Date.today.strftime("/blog/%Y/%m/%d/toto-and-the-wizard-of-oz/")
       end
     end
   end
