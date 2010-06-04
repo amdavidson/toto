@@ -5,7 +5,13 @@ require 'rack'
 require 'digest'
 require 'open-uri'
 
-require 'rdiscount'
+if RUBY_PLATFORM =~ /win32/
+  require 'maruku'
+  Markdown = Maruku
+else
+  require 'rdiscount'
+end
+
 require 'builder'
 
 $:.unshift File.dirname(__FILE__)
@@ -364,7 +370,7 @@ module Toto
         "no-cache, must-revalidate"
       end
 
-      @response['ETag'] = Digest::SHA1.hexdigest(response[:body])
+      @response['ETag'] = %("#{Digest::SHA1.hexdigest(response[:body])}")
 
       @response.status = response[:status]
       @response.finish
