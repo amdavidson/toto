@@ -105,9 +105,6 @@ module Toto
         when ":month" then style += '\d{2}\/'
         when ":day"   then style += '\d{2}\/'
         when ":title" then style += '[a-zA-Z0-9\-_]+'
-        else
-          style += '.+\/'
-        end
       end
       Regexp.new style
     end
